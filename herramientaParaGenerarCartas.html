@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editor de Carta de Presentación</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .carta {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .carta p {
+            margin: 0;
+        }
+
+        .carta b {
+            font-weight: bold;
+        }
+
+        .carta .fecha {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            text-align: right;
+        }
+
+        .carta .saludo {
+            margin-top: 20px;
+        }
+
+        .carta a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .brEdit {
+            display: block;
+            width: auto;
+            height: 17px;
+        }
+
+        .titulo {
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Editor de Carta de Presentación</h1>
+        <h5>by <a href="https://literalmentetodo.000.pe/">Literalmentetodo</a></h5>
+        <div>
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" value="David García Torres">
+        </div>
+        <div>
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" value="AV. Cataluña">
+        </div>
+        <div>
+            <label for="ciudad">Ciudad, Código Postal:</label>
+            <input type="text" id="ciudad" value="Onda, 12200">
+        </div>
+        <div>
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" value="653578617">
+        </div>
+        <div>
+            <label for="email">Correo Electrónico:</label>
+            <input type="text" id="email" value="xxxdddgggttt@gmail.com">
+        </div>
+        <div>
+            <label for="empresa">Nombre de la Empresa:</label>
+            <input type="text" id="empresa" value="">
+        </div>
+        <div>
+            <label for="posicion">Posición a la que estás aplicando:</label>
+            <input type="text" id="posicion" value="">
+        </div>
+
+        <button class="btn btn-primary" onclick="editAndDownload()">Editar y Descargar PDF</button>
+    </div>
+
+    <!-- Incluir html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <script>
+        // Al cargar la página, se intenta cargar los datos de localStorage
+        window.onload = function () {
+            const nombreSaved = localStorage.getItem('nombre');
+            const direccionSaved = localStorage.getItem('direccion');
+            const ciudadSaved = localStorage.getItem('ciudad');
+            const telefonoSaved = localStorage.getItem('telefono');
+            const emailSaved = localStorage.getItem('email');
+            const empresaSaved = localStorage.getItem('empresa');
+            const posicionSaved = localStorage.getItem('posicion');
+
+            if (nombreSaved !== null) {
+                document.getElementById('nombre').value = nombreSaved;
+            }
+            if (direccionSaved !== null) {
+                document.getElementById('direccion').value = direccionSaved;
+            }
+            if (ciudadSaved !== null) {
+                document.getElementById('ciudad').value = ciudadSaved;
+            }
+            if (telefonoSaved !== null) {
+                document.getElementById('telefono').value = telefonoSaved;
+            }
+            if (emailSaved !== null) {
+                document.getElementById('email').value = emailSaved;
+            }
+            if (empresaSaved !== null) {
+                document.getElementById('empresa').value = empresaSaved;
+            }
+            if (posicionSaved !== null) {
+                document.getElementById('posicion').value = posicionSaved;
+            }
+        };
+
+        // Función para guardar en localStorage cuando se cambian los valores
+        document.getElementById('nombre').addEventListener('input', function () {
+            localStorage.setItem('nombre', this.value);
+        });
+
+        document.getElementById('direccion').addEventListener('input', function () {
+            localStorage.setItem('direccion', this.value);
+        });
+
+        document.getElementById('ciudad').addEventListener('input', function () {
+            localStorage.setItem('ciudad', this.value);
+        });
+
+        document.getElementById('telefono').addEventListener('input', function () {
+            localStorage.setItem('telefono', this.value);
+        });
+
+        document.getElementById('email').addEventListener('input', function () {
+            localStorage.setItem('email', this.value);
+        });
+
+        document.getElementById('empresa').addEventListener('input', function () {
+            localStorage.setItem('empresa', this.value);
+        });
+
+        document.getElementById('posicion').addEventListener('input', function () {
+            localStorage.setItem('posicion', this.value);
+        });
+
+        function editAndDownload() {
+            const nombre = document.getElementById('nombre').value;
+            const direccion = document.getElementById('direccion').value;
+            const ciudad = document.getElementById('ciudad').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const empresa = document.getElementById('empresa').value;
+            const posicion = document.getElementById('posicion').value;
+            const currentDate = new Date().toLocaleDateString('es-ES');
+
+            const carta = `
+        <div class="carta">
+          <p class="titulo"><b>${nombre}</b></p>
+          <p>${direccion}</p>
+          <p>${ciudad}</p>
+          <p><a href="tel:${telefono}" style="text-decoration: none; color: inherit;">${telefono}</a></p>
+          <p><a href="mailto:${email}" style="text-decoration: none; color: inherit;">${email}</a></p>
+
+          <div class="fecha">${currentDate}</div>
+
+          <p class="saludo">Estimado equipo de <b>${empresa}</b>,</p>
+
+          <p>Me dirijo a ustedes con entusiasmo y el deseo de formar parte de su equipo como <b>${posicion}</b>. Me llamo ${nombre}, y en esta carta deseo compartir mi pasión y experiencia en el mundo de la programación y la tecnología.</p>
+          <div class="brEdit"></div>
+          <p>Durante mi trayectoria, he encontrado una verdadera pasión por el desarrollo de sitios web y aplicaciones. La capacidad de crear algo desde cero y ver cómo cobra vida en el mundo digital es algo que me motiva profundamente. Además de mis habilidades en programación, también poseo conocimientos en electricidad, robótica e informática, lo cual me ha permitido trabajar con una variedad de proyectos y tecnologías.</p>
+          <div class="brEdit"></div>
+          <p>Lo que me destaca es mi creatividad y capacidad para generar ideas innovadoras para mis proyectos web. Esta creatividad se combina con mi enfoque perseverante, lo que me ha llevado a trabajar con diferentes máquinas, mejorando su funcionamiento y eficiencia. Esta versatilidad y capacidad para adaptarme a diversos desafíos tecnológicos es algo que valoro en mi trabajo diario.</p>
+          <div class="brEdit"></div>
+          <p>Además de mi experiencia técnica, he tenido la oportunidad de trabajar en el campo agrícola junto a mi padre, lo que me ha enseñado la importancia del trabajo duro, la puntualidad y la fiabilidad en cualquier tarea que emprendo.</p>
+
+          <p>Quisiera destacar que estoy registrado y he completado un curso de comercio, logística y almacén, lo cual puede resultar en una bonificación de hasta 5.000€ para la empresa al contratarme.</p>
+          <div class="brEdit"></div>
+          <p>Estoy muy emocionado por la oportunidad de unirme a su equipo, aportar mis habilidades y conocimientos, y seguir creciendo profesionalmente en un entorno que valore la innovación y la excelencia tecnológica. Estoy disponible para una entrevista en cualquier momento que les resulte conveniente y espero tener la oportunidad de discutir cómo mis habilidades pueden contribuir al éxito de ${empresa}.</p>
+          <div class="brEdit"></div>
+          <p>Muchas gracias por considerar mi solicitud. Quedo a su disposición para proporcionar cualquier información adicional que puedan necesitar.</p>
+          <br>
+          <br>
+          <p>Atentamente, <b>${nombre}</b>.</p>
+        </div>
+      `;
+
+            const options = {
+                margin: 20,
+                filename: `Carta_presentacion_de_${nombre}_empresa_${empresa}_fecha_${currentDate}.pdf`,
+                image: { type: 'png', quality: 1.0 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(carta).set(options).save();
+        }
+    </script>
+</body>
+
+</html>
