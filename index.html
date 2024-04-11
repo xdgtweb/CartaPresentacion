@@ -99,9 +99,81 @@
             font-size: 16px;
         }
 
-        label
-        {
+        label {
             font-weight: 600;
+        }
+
+        .checkbox-input {
+            margin-bottom: 10px;
+        }
+
+        #carta_texto {
+            width: 100%;
+            height: 250px;
+            /* Altura inicial */
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: 2px green solid;
+            resize: none;
+            /* Hace que el textarea no sea redimensionable */
+            overflow-y: scroll;
+            /* Agrega scroll vertical */
+        }
+
+        #carta_texto:focus {
+            border: 2px rgb(177, 175, 0) solid;
+        }
+
+        img {
+            width: 17px;
+            height: auto;
+            display: inline-block;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .btn2,
+        .btn3 {
+            display: inline-block;
+            border-radius: 5px;
+            border: 0;
+            color: black;
+            background-color: #a3b0bc;
+            height: 35px;
+            padding: 0;
+            font-weight: 600;
+        }
+
+        .btn2 {
+            width: 35px;
+        }
+
+        .btn3 {
+            width: 80px;
+        }
+
+        .logo
+        {
+            display: block;
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .img2
+        {
+            width: 25px;
+            height: auto;
+            margin-right: 50px;
+            margin-bottom: .5rem;
+        }
+        
+        .cajaBtn
+        {
+            display: inline-block;
+            text-align: right;
         }
     </style>
 </head>
@@ -109,6 +181,9 @@
 <body>
     <div class="container">
         <h1>Editor de Carta de Presentación</h1>
+        <div class="logo">
+            <img class="img2" src="img/logoOscuro.png">
+        </div>
         <h5>by <a href="https://literalmentetodo.000.pe/">Literalmentetodo</a></h5>
         <div>
             <label for="nombre">Nombre:</label>
@@ -130,6 +205,14 @@
             <label for="email">Correo Electrónico:</label>
             <input type="text" id="email" value="xxxdddgggttt@gmail.com">
         </div>
+        <div class="checkbox-input">
+            <input type="checkbox" id="check_empresa" onchange="toggleEmpresaInput()">
+            <label for="check_empresa">No incluir Nombre de la Empresa</label>
+        </div>
+        <div class="checkbox-input">
+            <input type="checkbox" id="check_posicion" onchange="togglePosicionInput()">
+            <label for="check_posicion">No incluir Posición</label>
+        </div>
         <div>
             <label for="empresa">Nombre de la Empresa:</label>
             <input type="text" id="empresa" value="">
@@ -137,6 +220,19 @@
         <div>
             <label for="posicion">Posición a la que estás aplicando:</label>
             <input type="text" id="posicion" value="">
+        </div>
+        <div>
+            <label for="carta_texto">Contenido de la Carta:</label>
+            <div class="cajaBtn">
+            <button class="btn2" onclick="applyBold()"><img
+                    src="https://cdn-icons-png.flaticon.com/512/102/102576.png"></button>
+            <button class="btn2" onclick="applyItalic()"><img
+                    src="https://cdn-icons-png.flaticon.com/512/2209/2209546.png"></button>
+            <button class="btn3" onclick="insertVariable('posicion')">Posicion</button>
+            <button class="btn3" onclick="insertVariable('empresa')">Empresa</button>
+            </div>
+            <textarea id="carta_texto" rows="10"
+                placeholder="Escribe aquí el contenido de tu carta de presentación"></textarea>
         </div>
 
         <button class="btn btn-primary" onclick="editAndDownload()">Descargar resultado</button>
@@ -148,124 +244,249 @@
 
     <script>
         // Al cargar la página, se intenta cargar los datos de localStorage
-        window.onload = function () {
-            const nombreSaved = localStorage.getItem('nombre');
-            const direccionSaved = localStorage.getItem('direccion');
-            const ciudadSaved = localStorage.getItem('ciudad');
-            const telefonoSaved = localStorage.getItem('telefono');
-            const emailSaved = localStorage.getItem('email');
-            const empresaSaved = localStorage.getItem('empresa');
-            const posicionSaved = localStorage.getItem('posicion');
+window.onload = function () {
+    const nombreSaved = localStorage.getItem('nombre');
+    const direccionSaved = localStorage.getItem('direccion');
+    const ciudadSaved = localStorage.getItem('ciudad');
+    const telefonoSaved = localStorage.getItem('telefono');
+    const emailSaved = localStorage.getItem('email');
+    const empresaSaved = localStorage.getItem('empresa');
+    const posicionSaved = localStorage.getItem('posicion');
+    const cartaTextoSaved = localStorage.getItem('cartaTexto');
 
-            if (nombreSaved !== null) {
-                document.getElementById('nombre').value = nombreSaved;
-            }
-            if (direccionSaved !== null) {
-                document.getElementById('direccion').value = direccionSaved;
-            }
-            if (ciudadSaved !== null) {
-                document.getElementById('ciudad').value = ciudadSaved;
-            }
-            if (telefonoSaved !== null) {
-                document.getElementById('telefono').value = telefonoSaved;
-            }
-            if (emailSaved !== null) {
-                document.getElementById('email').value = emailSaved;
-            }
-            if (empresaSaved !== null) {
-                document.getElementById('empresa').value = empresaSaved;
-            }
-            if (posicionSaved !== null) {
-                document.getElementById('posicion').value = posicionSaved;
-            }
-        };
+    if (nombreSaved !== null) {
+        document.getElementById('nombre').value = nombreSaved;
+    }
+    if (direccionSaved !== null) {
+        document.getElementById('direccion').value = direccionSaved;
+    }
+    if (ciudadSaved !== null) {
+        document.getElementById('ciudad').value = ciudadSaved;
+    }
+    if (telefonoSaved !== null) {
+        document.getElementById('telefono').value = telefonoSaved;
+    }
+    if (emailSaved !== null) {
+        document.getElementById('email').value = emailSaved;
+    }
+    if (empresaSaved !== null) {
+        document.getElementById('empresa').value = empresaSaved;
+    }
+    if (posicionSaved !== null) {
+        document.getElementById('posicion').value = posicionSaved;
+    }
+    if (cartaTextoSaved !== null) {
+        document.getElementById('carta_texto').value = cartaTextoSaved;
+    }
 
-        // Función para guardar en localStorage cuando se cambian los valores
-        document.getElementById('nombre').addEventListener('input', function () {
-            localStorage.setItem('nombre', this.value);
-        });
+    // Deshabilitar los campos empresa y posición si los checkboxes están marcados al cargar la página
+    const checkEmpresa = document.getElementById('check_empresa');
+    const checkPosicion = document.getElementById('check_posicion');
+    const empresaInput = document.getElementById('empresa');
+    const posicionInput = document.getElementById('posicion');
 
-        document.getElementById('direccion').addEventListener('input', function () {
-            localStorage.setItem('direccion', this.value);
-        });
+    if (checkEmpresa.checked) {
+        empresaInput.disabled = true;
+    }
+    if (checkPosicion.checked) {
+        posicionInput.disabled = true;
+    }
+};
 
-        document.getElementById('ciudad').addEventListener('input', function () {
-            localStorage.setItem('ciudad', this.value);
-        });
+// Función para guardar en localStorage cuando se cambian los valores
+document.getElementById('nombre').addEventListener('input', function () {
+    localStorage.setItem('nombre', this.value);
+});
 
-        document.getElementById('telefono').addEventListener('input', function () {
-            localStorage.setItem('telefono', this.value);
-        });
+document.getElementById('direccion').addEventListener('input', function () {
+    localStorage.setItem('direccion', this.value);
+});
 
-        document.getElementById('email').addEventListener('input', function () {
-            localStorage.setItem('email', this.value);
-        });
+document.getElementById('ciudad').addEventListener('input', function () {
+    localStorage.setItem('ciudad', this.value);
+});
 
-        document.getElementById('empresa').addEventListener('input', function () {
-            localStorage.setItem('empresa', this.value);
-        });
+document.getElementById('telefono').addEventListener('input', function () {
+    localStorage.setItem('telefono', this.value);
+});
 
-        document.getElementById('posicion').addEventListener('input', function () {
-            localStorage.setItem('posicion', this.value);
-        });
+document.getElementById('email').addEventListener('input', function () {
+    localStorage.setItem('email', this.value);
+});
 
-        function formatDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
+document.getElementById('empresa').addEventListener('input', function () {
+    localStorage.setItem('empresa', this.value);
+});
+
+document.getElementById('posicion').addEventListener('input', function () {
+    localStorage.setItem('posicion', this.value);
+});
+
+document.getElementById('carta_texto').addEventListener('input', function () {
+    localStorage.setItem('cartaTexto', this.value);
+});
+
+function toggleEmpresaInput() {
+    const empresaInput = document.getElementById('empresa');
+    const checkEmpresa = document.getElementById('check_empresa');
+
+    if (!checkEmpresa.checked) {
+        empresaInput.disabled = false;
+        empresaInput.value = localStorage.getItem('empresa') || '';
+    } else {
+        empresaInput.disabled = true;
+        empresaInput.value = localStorage.getItem('empresa') || '';
+    }
+}
+
+function togglePosicionInput() {
+    const posicionInput = document.getElementById('posicion');
+    const checkPosicion = document.getElementById('check_posicion');
+
+    if (!checkPosicion.checked) {
+        posicionInput.disabled = false;
+        posicionInput.value = localStorage.getItem('posicion') || '';
+    } else {
+        posicionInput.disabled = true;
+        posicionInput.value = localStorage.getItem('posicion') || '';
+    }
+}
+
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function editAndDownload() {
+    const nombre = document.getElementById('nombre').value;
+    const direccion = document.getElementById('direccion').value;
+    const ciudad = document.getElementById('ciudad').value;
+    const telefono = document.getElementById('telefono').value;
+    const email = document.getElementById('email').value;
+    const empresa = document.getElementById('empresa').value;
+    const posicion = document.getElementById('posicion').value;
+    const currentDate = formatDate(new Date());
+    const cartaTexto = document.getElementById('carta_texto').value.trim();
+
+    // **Guardar contenido del textarea en localStorage**
+    localStorage.setItem('cartaTexto', cartaTexto);
+
+    let carta = `
+    <div class="carta">
+      <p class="titulo"><b>${nombre}</b></p>
+      <p>${direccion}</p>
+      <p>${ciudad}</p>
+      <p><a href="tel:${telefono}" style="text-decoration: none; color: inherit;">${telefono}</a></p>
+      <p><a href="mailto:${email}" style="text-decoration: none; color: inherit;">${email}</a></p>
+
+      <div class="fecha">${currentDate}</div>
+      <div class="saludo">`;
+
+    if (cartaTexto !== '') {
+        // Reemplazar saltos de línea con etiquetas <br> y agregar al contenido de la carta
+        const cartaTextoConBr = cartaTexto.replace(/\n/g, '<br>');
+        carta += `<p>${cartaTextoConBr}</p>`;
+    } else {
+        // Si no hay contenido en el textarea, usar la carta estándar
+        if (!document.getElementById('check_empresa').checked) {
+            carta += `<p>Estimado equipo de <b>${empresa}</b>,</p>`;
+        } else {
+            carta += `<p>Estimado equipo,</p>`;
         }
 
-        function editAndDownload() {
-            const nombre = document.getElementById('nombre').value;
-            const direccion = document.getElementById('direccion').value;
-            const ciudad = document.getElementById('ciudad').value;
-            const telefono = document.getElementById('telefono').value;
-            const email = document.getElementById('email').value;
-            const empresa = document.getElementById('empresa').value;
-            const posicion = document.getElementById('posicion').value;
-            const currentDate = formatDate(new Date());
+        carta += `
+        <p>Me dirijo a ustedes con entusiasmo y el deseo de formar parte de su equipo`;
 
-            const carta = `
-        <div class="carta">
-          <p class="titulo"><b>${nombre}</b></p>
-          <p>${direccion}</p>
-          <p>${ciudad}</p>
-          <p><a href="tel:${telefono}" style="text-decoration: none; color: inherit;">${telefono}</a></p>
-          <p><a href="mailto:${email}" style="text-decoration: none; color: inherit;">${email}</a></p>
+        if (!document.getElementById('check_posicion').checked) {
+            carta += ` como <b>${posicion}</b>`;
+        }
 
-          <div class="fecha">${currentDate}</div>
+        carta += `. Me llamo ${nombre}, y en esta carta deseo compartir mi pasión y experiencia en el mundo de la programación y la tecnología.</p>
+        <div class="brEdit"></div>
+        <p>Durante mi trayectoria, he encontrado una verdadera pasión por el desarrollo de sitios web y aplicaciones. La capacidad de crear algo desde cero y ver cómo cobra vida en el mundo digital es algo que me motiva profundamente. Además de mis habilidades en programación, también poseo conocimientos en electricidad, robótica e informática, lo cual me ha permitido trabajar con una variedad de proyectos y tecnologías.</p>
+        <div class="brEdit"></div>
+        <p>Lo que me destaca es mi creatividad y capacidad para generar ideas innovadoras para mis proyectos web. Esta creatividad se combina con mi enfoque perseverante, lo que me ha llevado a trabajar con diferentes máquinas, mejorando su funcionamiento y eficiencia. Esta versatilidad y capacidad para adaptarme a diversos desafíos tecnológicos es algo que valoro en mi trabajo diario.</p>
+        <div class="brEdit"></div>
+        <p>Además de mi experiencia técnica, he tenido la oportunidad de trabajar en el campo agrícola junto a mi padre, lo que me ha enseñado la importancia del trabajo duro, la puntualidad y la fiabilidad en cualquier tarea que emprendo.</p>
 
-          <p class="saludo">Estimado equipo de <b>${empresa}</b>,</p>
-
-          <p>Me dirijo a ustedes con entusiasmo y el deseo de formar parte de su equipo como <b>${posicion}</b>. Me llamo ${nombre}, y en esta carta deseo compartir mi pasión y experiencia en el mundo de la programación y la tecnología.</p>
-          <div class="brEdit"></div>
-          <p>Durante mi trayectoria, he encontrado una verdadera pasión por el desarrollo de sitios web y aplicaciones. La capacidad de crear algo desde cero y ver cómo cobra vida en el mundo digital es algo que me motiva profundamente. Además de mis habilidades en programación, también poseo conocimientos en electricidad, robótica e informática, lo cual me ha permitido trabajar con una variedad de proyectos y tecnologías.</p>
-          <div class="brEdit"></div>
-          <p>Lo que me destaca es mi creatividad y capacidad para generar ideas innovadoras para mis proyectos web. Esta creatividad se combina con mi enfoque perseverante, lo que me ha llevado a trabajar con diferentes máquinas, mejorando su funcionamiento y eficiencia. Esta versatilidad y capacidad para adaptarme a diversos desafíos tecnológicos es algo que valoro en mi trabajo diario.</p>
-          <div class="brEdit"></div>
-          <p>Además de mi experiencia técnica, he tenido la oportunidad de trabajar en el campo agrícola junto a mi padre, lo que me ha enseñado la importancia del trabajo duro, la puntualidad y la fiabilidad en cualquier tarea que emprendo.</p>
-
-          <p>Quisiera destacar que estoy registrado y he completado un curso de comercio, logística y almacén, lo cual puede resultar en una bonificación de hasta 5.000€ para la empresa al contratarme.</p>
-          <div class="brEdit"></div>
-          <p>Estoy muy emocionado por la oportunidad de unirme a su equipo, aportar mis habilidades y conocimientos, y seguir creciendo profesionalmente en un entorno que valore la innovación y la excelencia tecnológica. Estoy disponible para una entrevista en cualquier momento que les resulte conveniente y espero tener la oportunidad de discutir cómo mis habilidades pueden contribuir al éxito de ${empresa}.</p>
-          <div class="brEdit"></div>
-          <p>Muchas gracias por considerar mi solicitud. Quedo a su disposición para proporcionar cualquier información adicional que puedan necesitar.</p>
-          <br>
-          <br>
-          <p>Atentamente, <b>${nombre}</b>.</p>
+        <p>Quisiera destacar que estoy registrado y he completado un curso de comercio, logística y almacén, lo cual puede resultar en una bonificación de hasta 5.000€ para la empresa al contratarme.</p>
+        <div class="brEdit"></div>
+        <p>Estoy muy emocionado por la oportunidad de unirme a su equipo, aportar mis habilidades y conocimientos, y seguir creciendo profesionalmente en un entorno que valore la innovación y la excelencia tecnológica. Estoy disponible para una entrevista en cualquier momento que les resulte conveniente y espero tener la oportunidad de discutir cómo mis habilidades pueden contribuir al éxito de su empresa.</p>
+        <div class="brEdit"></div>
+        <p>Muchas gracias por considerar mi solicitud. Quedo a su disposición para proporcionar cualquier información adicional que puedan necesitar.</p>
+        <br>
+        <br>
+        <p>Atentamente, <b>${nombre}</b>.</p>
         </div>
-      `;
+    `;
+    }
 
-            const options = {
-                margin: 20,
-                filename: `Carta_presentacion_de_${nombre}_empresa_${empresa}_fecha_${currentDate}.pdf`,
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+    const options = {
+        margin: 20,
+        filename: `Carta_presentacion_de_${nombre}_fecha_${currentDate}.pdf`,
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-            html2pdf().from(carta).set(options).save();
-        }
+    html2pdf().from(carta).set(options).save();
+}
+
+function applyBold() {
+    const textarea = document.getElementById('carta_texto');
+    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    const boldText = `<b>${selectedText}</b>`;
+    const newText =
+        textarea.value.substring(0, textarea.selectionStart) +
+        boldText +
+        textarea.value.substring(textarea.selectionEnd, textarea.value.length);
+
+    // Actualizar el contenido del textarea y guardarlo en localStorage
+    textarea.value = newText;
+    localStorage.setItem('cartaTexto', textarea.value);
+    textarea.focus();
+}
+
+function applyItalic() {
+    const textarea = document.getElementById('carta_texto');
+    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    const italicText = `<i>${selectedText}</i>`;
+    const newText =
+        textarea.value.substring(0, textarea.selectionStart) +
+        italicText +
+        textarea.value.substring(textarea.selectionEnd, textarea.value.length);
+
+    // Actualizar el contenido del textarea y guardarlo en localStorage
+    textarea.value = newText;
+    localStorage.setItem('cartaTexto', textarea.value);
+    textarea.focus();
+}
+
+function insertVariable(variable) {
+    const textarea = document.getElementById('carta_texto');
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = textarea.value.substring(0, startPos);
+    const textAfter = textarea.value.substring(endPos, textarea.value.length);
+
+    let variableText = '';
+    if (variable === 'posicion') {
+        variableText = document.getElementById('posicion').value;
+    } else if (variable === 'empresa') {
+        variableText = document.getElementById('empresa').value;
+    }
+
+    textarea.value = textBefore + variableText + textAfter;
+
+    // Colocar el cursor después del texto insertado
+    textarea.setSelectionRange(startPos + variableText.length, startPos + variableText.length);
+
+    // Actualizar el contenido del textarea y guardarlo en localStorage
+    localStorage.setItem('cartaTexto', textarea.value);
+    textarea.focus();
+}
+
     </script>
 </body>
 
