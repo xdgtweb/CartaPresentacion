@@ -488,11 +488,13 @@
                 const cartaTextoConBr = cartaTexto.replace(/\n/g, '<br>');
                 carta += `<p>${cartaTextoConBr}</p>`;
             } else {
-                // Si no hay contenido en el textarea y los campos de empresa y posición están vacíos, asumimos que los checkboxes están "marcados"
-                carta += `<p>Estimado equipo,</p>`;
 
                 if (empresa === '' || checkEmpresa.checked) {
                     carta += `<p>Estimado equipo de <b>${empresa}</b>,</p>`;
+                }
+                else
+                {
+                    carta += `<p>Estimado equipo,</p>`;
                 }
 
                 carta += `
