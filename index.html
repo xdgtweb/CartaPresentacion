@@ -173,11 +173,17 @@
             text-align: right;
         }
 
-        input[type=checkbox],
-        input[type=radio] {
+        input[type=checkbox] {
             width: 25px;
             height: 25px;
             position: absolute;
+            top: 12px;
+            right: 0px;
+        }
+
+        input[type=radio] {
+            width: 25px;
+            height: 25px;
             top: 12px;
             right: 0px;
         }
@@ -192,8 +198,8 @@
         }
 
         .imgLogoPDF {
-            width: 50px;
-            height: 50px;
+            width: auto;
+            height: 80px;
             position: absolute;
             bottom: 0px;
             right: 0px;
@@ -208,6 +214,16 @@
             border: 2px gray solid;
             color: gray;
             pointer-events: none;
+        }
+
+        #previewImage {
+            display: inline-block !important;
+            width: auto;
+        }
+
+        .formatoDescarga
+        {
+            display: block;
         }
     </style>
 </head>
@@ -241,7 +257,8 @@
         </div>
         <div>
             <label for="logo">Logotipo o firma:</label>
-            <input type="file" class="logoInput" accept="image/png, image/jpeg" onchange="handleLogoChange(event)">
+            <input type="file" class="logoInput" id="logoBase64" accept="image/png, image/jpeg">
+            <div id="previewImage" src="" alt="Vista previa de la imagen" style="display: none;"></div>
         </div>
         <div>
             <label for="empresa">Nombre de la Empresa:</label>
@@ -270,7 +287,13 @@
             <textarea id="carta_texto" rows="10"
                 placeholder="Escribe aquí el contenido de tu carta de presentación"></textarea>
         </div>
-
+        <div class="formatoDescarga">
+            <label>Formato de Descarga:</label><br>
+            <input type="radio" id="pdf" name="formato" value="pdf" checked>
+            <label for="pdf">PDF</label><br>
+            <input type="radio" id="txt" name="formato" value="txt">
+            <label for="pdf">TXT</label><br>
+        </div>
         <button class="btn btn-primary" onclick="editAndDownload()">Descargar resultado</button>
     </div>
 
@@ -280,196 +303,195 @@
 
     <script>
         // Al cargar la página, se intenta cargar los datos de localStorage
-        window.onload = function () {
-            const nombreSaved = localStorage.getItem('nombre');
-            const direccionSaved = localStorage.getItem('direccion');
-            const ciudadSaved = localStorage.getItem('ciudad');
-            const telefonoSaved = localStorage.getItem('telefono');
-            const emailSaved = localStorage.getItem('email');
-            const empresaSaved = localStorage.getItem('empresa');
-            const posicionSaved = localStorage.getItem('posicion');
-            const cartaTextoSaved = localStorage.getItem('cartaTexto');
+window.onload = function () {
+    const nombreSaved = localStorage.getItem('nombre');
+    const direccionSaved = localStorage.getItem('direccion');
+    const ciudadSaved = localStorage.getItem('ciudad');
+    const telefonoSaved = localStorage.getItem('telefono');
+    const emailSaved = localStorage.getItem('email');
+    const empresaSaved = localStorage.getItem('empresa');
+    const posicionSaved = localStorage.getItem('posicion');
+    const cartaTextoSaved = localStorage.getItem('cartaTexto');
 
-            if (nombreSaved !== null) {
-                document.getElementById('nombre').value = nombreSaved;
-            }
-            if (direccionSaved !== null) {
-                document.getElementById('direccion').value = direccionSaved;
-            }
-            if (ciudadSaved !== null) {
-                document.getElementById('ciudad').value = ciudadSaved;
-            }
-            if (telefonoSaved !== null) {
-                document.getElementById('telefono').value = telefonoSaved;
-            }
-            if (emailSaved !== null) {
-                document.getElementById('email').value = emailSaved;
-            }
-            if (empresaSaved !== null) {
-                document.getElementById('empresa').value = empresaSaved;
-            }
-            if (posicionSaved !== null) {
-                document.getElementById('posicion').value = posicionSaved;
-            }
-            if (cartaTextoSaved !== null) {
-                document.getElementById('carta_texto').value = cartaTextoSaved;
-            }
+    if (nombreSaved !== null) {
+        document.getElementById('nombre').value = nombreSaved;
+    }
+    if (direccionSaved !== null) {
+        document.getElementById('direccion').value = direccionSaved;
+    }
+    if (ciudadSaved !== null) {
+        document.getElementById('ciudad').value = ciudadSaved;
+    }
+    if (telefonoSaved !== null) {
+        document.getElementById('telefono').value = telefonoSaved;
+    }
+    if (emailSaved !== null) {
+        document.getElementById('email').value = emailSaved;
+    }
+    if (empresaSaved !== null) {
+        document.getElementById('empresa').value = empresaSaved;
+    }
+    if (posicionSaved !== null) {
+        document.getElementById('posicion').value = posicionSaved;
+    }
+    if (cartaTextoSaved !== null) {
+        document.getElementById('carta_texto').value = cartaTextoSaved;
+    }
 
-            // Deshabilitar los campos empresa y posición si los checkboxes están marcados al cargar la página
-            var checkEmpresa = document.getElementById('check_empresa');
-            var checkPosicion = document.getElementById('check_posicion');
-            const empresaInput = document.getElementById('empresa');
-            const posicionInput = document.getElementById('posicion');
-            var btnEmpresa = document.querySelector(".btnEmpresa");
-            var btnPosicion = document.querySelector(".btnPosicion");
+    // Deshabilitar los campos empresa y posición si los checkboxes están marcados al cargar la página
+    var checkEmpresa = document.getElementById('check_empresa');
+    var checkPosicion = document.getElementById('check_posicion');
+    const empresaInput = document.getElementById('empresa');
+    const posicionInput = document.getElementById('posicion');
+    var btnEmpresa = document.querySelector(".btnEmpresa");
+    var btnPosicion = document.querySelector(".btnPosicion");
 
-            if (!checkEmpresa.checked) {
-                btnEmpresa.classList.add("colorDesactivado");
-            }
-            if (!checkPosicion.checked) {
-                btnPosicion.classList.add("colorDesactivado");
-            }
+    if (!checkEmpresa.checked) {
+        btnEmpresa.classList.add("colorDesactivado");
+    }
+    if (!checkPosicion.checked) {
+        btnPosicion.classList.add("colorDesactivado");
+    }
 
-            checkEmpresa.addEventListener("change", function () {
-                if (checkEmpresa.checked) {
-                    empresaInput.disabled = false;
-                    btnEmpresa.classList.remove("colorDesactivado");
-                } else {
-                    empresaInput.disabled = true;
-                    btnEmpresa.classList.add("colorDesactivado");
-                }
-            });
-
-            // Función para aplicar estilos cuando se marque/desmarque la casilla de posición
-            checkPosicion.addEventListener("change", function () {
-                if (checkPosicion.checked) {
-                    posicionInput.disabled = false;
-                    btnPosicion.classList.remove("colorDesactivado");
-                } else {
-                    posicionInput.disabled = true;
-                    btnPosicion.classList.add("colorDesactivado");
-                }
-            });
-        };
-
-        // Función para guardar en localStorage cuando se cambian los valores
-        document.getElementById('nombre').addEventListener('input', function () {
-            localStorage.setItem('nombre', this.value);
-        });
-
-        document.getElementById('direccion').addEventListener('input', function () {
-            localStorage.setItem('direccion', this.value);
-        });
-
-        document.getElementById('ciudad').addEventListener('input', function () {
-            localStorage.setItem('ciudad', this.value);
-        });
-
-        document.getElementById('telefono').addEventListener('input', function () {
-            localStorage.setItem('telefono', this.value);
-        });
-
-        document.getElementById('email').addEventListener('input', function () {
-            localStorage.setItem('email', this.value);
-        });
-
-        document.getElementById('empresa').addEventListener('input', function () {
-            localStorage.setItem('empresa', this.value);
-        });
-
-        document.getElementById('posicion').addEventListener('input', function () {
-            localStorage.setItem('posicion', this.value);
-        });
-
-        document.getElementById('carta_texto').addEventListener('input', function () {
-            localStorage.setItem('cartaTexto', this.value);
-        });
-
-        function toggleEmpresaInput() {
-            const empresaInput = document.getElementById('empresa');
-            const checkEmpresa = document.getElementById('check_empresa');
-
-            if (!checkEmpresa.checked) {
-                empresaInput.disabled = true;
-                empresaInput.value = localStorage.getItem('empresa') || '';
-            } else {
-                empresaInput.disabled = false;
-                empresaInput.value = localStorage.getItem('empresa') || '';
-            }
-            localStorage.setItem('check_empresa', checkEmpresa.checked);
-        }
-
-        function togglePosicionInput() {
-            const posicionInput = document.getElementById('posicion');
-            const checkPosicion = document.getElementById('check_posicion');
-
-            if (!checkPosicion.checked) {
-                posicionInput.disabled = true;
-                posicionInput.value = localStorage.getItem('posicion') || '';
-            } else {
-                posicionInput.disabled = false;
-                posicionInput.value = localStorage.getItem('posicion') || '';
-            }
-            localStorage.setItem('check_posicion', checkPosicion.checked);
-        }
-
-        const checkEmpresa = document.getElementById('check_empresa');
-        const checkPosicion = document.getElementById('check_posicion');
-        const empresaInput = document.getElementById('empresa');
-        const posicionInput = document.getElementById('posicion');
-
-        if (localStorage.getItem('check_empresa') === 'true') {
-            checkEmpresa.checked = true;
+    checkEmpresa.addEventListener("change", function () {
+        if (checkEmpresa.checked) {
             empresaInput.disabled = false;
+            btnEmpresa.classList.remove("colorDesactivado");
         } else {
-            checkEmpresa.checked = false;
             empresaInput.disabled = true;
+            btnEmpresa.classList.add("colorDesactivado");
         }
+    });
 
-        if (localStorage.getItem('check_posicion') === 'true') {
-            checkPosicion.checked = true;
+    // Función para aplicar estilos cuando se marque/desmarque la casilla de posición
+    checkPosicion.addEventListener("change", function () {
+        if (checkPosicion.checked) {
             posicionInput.disabled = false;
+            btnPosicion.classList.remove("colorDesactivado");
         } else {
-            checkPosicion.checked = false;
             posicionInput.disabled = true;
+            btnPosicion.classList.add("colorDesactivado");
         }
+    });
+};
 
-        function formatDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
+// Función para guardar en localStorage cuando se cambian los valores
+document.getElementById('logoBase64').addEventListener('input', function () {
+    localStorage.setItem('logoBase64', this.value);
+});
 
-        let logoBase64 = null; // Variable global para almacenar el logo en formato base64
+document.getElementById('nombre').addEventListener('input', function () {
+    localStorage.setItem('nombre', this.value);
+});
 
-        function handleLogoChange(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+document.getElementById('direccion').addEventListener('input', function () {
+    localStorage.setItem('direccion', this.value);
+});
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                logoBase64 = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+document.getElementById('ciudad').addEventListener('input', function () {
+    localStorage.setItem('ciudad', this.value);
+});
+
+document.getElementById('telefono').addEventListener('input', function () {
+    localStorage.setItem('telefono', this.value);
+});
+
+document.getElementById('email').addEventListener('input', function () {
+    localStorage.setItem('email', this.value);
+});
+
+document.getElementById('empresa').addEventListener('input', function () {
+    localStorage.setItem('empresa', this.value);
+});
+
+document.getElementById('posicion').addEventListener('input', function () {
+    localStorage.setItem('posicion', this.value);
+});
+
+document.getElementById('carta_texto').addEventListener('input', function () {
+    localStorage.setItem('cartaTexto', this.value);
+});
+
+function toggleEmpresaInput() {
+    const empresaInput = document.getElementById('empresa');
+    const checkEmpresa = document.getElementById('check_empresa');
+
+    if (!checkEmpresa.checked) {
+        empresaInput.disabled = true;
+        empresaInput.value = localStorage.getItem('empresa') || '';
+    } else {
+        empresaInput.disabled = false;
+        empresaInput.value = localStorage.getItem('empresa') || '';
+    }
+    localStorage.setItem('check_empresa', checkEmpresa.checked);
+}
+
+function togglePosicionInput() {
+    const posicionInput = document.getElementById('posicion');
+    const checkPosicion = document.getElementById('check_posicion');
+
+    if (!checkPosicion.checked) {
+        posicionInput.disabled = true;
+        posicionInput.value = localStorage.getItem('posicion') || '';
+    } else {
+        posicionInput.disabled = false;
+        posicionInput.value = localStorage.getItem('posicion') || '';
+    }
+    localStorage.setItem('check_posicion', checkPosicion.checked);
+}
+
+const checkEmpresa = document.getElementById('check_empresa');
+const checkPosicion = document.getElementById('check_posicion');
+const empresaInput = document.getElementById('empresa');
+const posicionInput = document.getElementById('posicion');
+
+if (localStorage.getItem('check_empresa') === 'true') {
+    checkEmpresa.checked = true;
+    empresaInput.disabled = false;
+} else {
+    checkEmpresa.checked = false;
+    empresaInput.disabled = true;
+}
+
+if (localStorage.getItem('check_posicion') === 'true') {
+    checkPosicion.checked = true;
+    posicionInput.disabled = false;
+} else {
+    checkPosicion.checked = false;
+    posicionInput.disabled = true;
+}
+
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function handleLogoChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        logoBase64 = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
 
 
-        function editAndDownload() {
-            const nombre = document.getElementById('nombre').value;
-            const direccion = document.getElementById('direccion').value;
-            const ciudad = document.getElementById('ciudad').value;
-            const telefono = document.getElementById('telefono').value;
-            const email = document.getElementById('email').value;
-            const empresa = document.getElementById('empresa').value.trim();  // Trim para eliminar espacios en blanco
-            const posicion = document.getElementById('posicion').value.trim();  // Trim para eliminar espacios en blanco
-            const currentDate = formatDate(new Date());
-            const cartaTexto = document.getElementById('carta_texto').value.trim();
+function editAndDownload() {
+    const nombre = document.getElementById('nombre').value;
+    const direccion = document.getElementById('direccion').value;
+    const ciudad = document.getElementById('ciudad').value;
+    const telefono = document.getElementById('telefono').value;
+    const email = document.getElementById('email').value;
+    const empresa = document.getElementById('empresa').value.trim();
+    const posicion = document.getElementById('posicion').value.trim();
+    const currentDate = formatDate(new Date());
+    const cartaTexto = document.getElementById('carta_texto').value.trim();
 
-            // **Guardar contenido del textarea en localStorage**
-            localStorage.setItem('cartaTexto', cartaTexto);
-
-            let carta = `
+    let carta = `
 <div class="carta">
     <div class="logo">
         ${logoBase64 ? `<img class="imgLogoPDF" src="${logoBase64}">` : ''}
@@ -483,28 +505,25 @@
     <div class="fecha">${currentDate}</div>
     <div class="saludo">`;
 
-            if (cartaTexto !== '') {
-                // Reemplazar saltos de línea con etiquetas <br> y agregar al contenido de la carta
-                const cartaTextoConBr = cartaTexto.replace(/\n/g, '<br>');
-                carta += `<p>${cartaTextoConBr}</p>`;
-            } else {
+    if (cartaTexto !== '') {
+        // Reemplazar saltos de línea con etiquetas <br> y agregar al contenido de la carta
+        const cartaTextoConBr = cartaTexto.replace(/\n/g, '<br>');
+        carta += `<p>${cartaTextoConBr}</p>`;
+    } else {
+        if (empresa === '' || checkEmpresa.checked) {
+            carta += `<p>Estimado equipo de <b>${empresa}</b>,</p>`;
+        } else {
+            carta += `<p>Estimado equipo,</p>`;
+        }
 
-                if (empresa === '' || checkEmpresa.checked) {
-                    carta += `<p>Estimado equipo de <b>${empresa}</b>,</p>`;
-                }
-                else
-                {
-                    carta += `<p>Estimado equipo,</p>`;
-                }
-
-                carta += `
+        carta += `
     <p>Me dirijo a ustedes con entusiasmo y el deseo de formar parte de su equipo`;
 
-                if (posicion === '' || checkPosicion.checked) {
-                    carta += ` como <b>${posicion}</b>`;
-                }
+        if (posicion === '' || checkPosicion.checked) {
+            carta += ` como <b>${posicion}</b>`;
+        }
 
-                carta += `. Me llamo ${nombre}, y en esta carta deseo compartir mi pasión y experiencia en el mundo de la programación y la tecnología.</p>
+        carta += `. Me llamo ${nombre}, y en esta carta deseo compartir mi pasión y experiencia en el mundo de la programación y la tecnología.</p>
     <div class="brEdit"></div>
     <p>Durante mi trayectoria, he encontrado una verdadera pasión por el desarrollo de sitios web y aplicaciones. La capacidad de crear algo desde cero y ver cómo cobra vida en el mundo digital es algo que me motiva profundamente. Además de mis habilidades en programación, también poseo conocimientos en electricidad, robótica e informática, lo cual me ha permitido trabajar con una variedad de proyectos y tecnologías.</p>
     <div class="brEdit"></div>
@@ -522,72 +541,69 @@
     <p>Atentamente, <b>${nombre}</b>.</p>
     </div>
 `;
-            }
+    }
 
-            const options = {
-                margin: 20,
-                filename: `Carta_presentacion_de_${nombre}_fecha_${currentDate}.pdf`,
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+    const formato = document.querySelector('input[name="formato"]:checked').value;
+    let fileName = `Carta_presentacion_de_${nombre}`;
+    if (formato === 'pdf') {
+        fileName += `_fecha_${currentDate}.pdf`;
+        const options = {
+            margin: 20,
+            filename: fileName,
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-            html2pdf().from(carta).set(options).save();
+        html2pdf().from(carta).set(options).save();
+    } else if (formato === 'txt') {
+        fileName += '.txt';
+        // Crear el contenido del archivo de texto sin la fecha ni etiquetas
+        let textoSinEtiquetas = `${nombre}
+${direccion}
+${ciudad}
+${telefono}
+${email}
+`;
+
+        if (empresa === '' || checkEmpresa.checked) {
+            textoSinEtiquetas += `\nEstimado equipo de ${empresa},\n`;
+        } else {
+            textoSinEtiquetas += `\nEstimado equipo,\n`;
         }
 
+        textoSinEtiquetas += `Me dirijo a ustedes con entusiasmo y el deseo de formar parte de su equipo`;
 
-        function applyBold() {
-            const textarea = document.getElementById('carta_texto');
-            const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-            const boldText = `<b>${selectedText}</b>`;
-            const newText =
-                textarea.value.substring(0, textarea.selectionStart) +
-                boldText +
-                textarea.value.substring(textarea.selectionEnd, textarea.value.length);
-
-            // Actualizar el contenido del textarea y guardarlo en localStorage
-            textarea.value = newText;
-            localStorage.setItem('cartaTexto', textarea.value);
-            textarea.focus();
+        if (posicion === '' || checkPosicion.checked) {
+            textoSinEtiquetas += ` como ${posicion}`;
         }
 
-        function applyItalic() {
-            const textarea = document.getElementById('carta_texto');
-            const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-            const italicText = `<i>${selectedText}</i>`;
-            const newText =
-                textarea.value.substring(0, textarea.selectionStart) +
-                italicText +
-                textarea.value.substring(textarea.selectionEnd, textarea.value.length);
+        textoSinEtiquetas += `. Me llamo ${nombre}, y en esta carta deseo compartir mi pasión y experiencia en el mundo de la programación y la tecnología.
 
-            // Actualizar el contenido del textarea y guardarlo en localStorage
-            textarea.value = newText;
-            localStorage.setItem('cartaTexto', textarea.value);
-            textarea.focus();
-        }
+Durante mi trayectoria, he encontrado una verdadera pasión por el desarrollo de sitios web y aplicaciones. La capacidad de crear algo desde cero y ver cómo cobra vida en el mundo digital es algo que me motiva profundamente. Además de mis habilidades en programación, también poseo conocimientos en electricidad, robótica e informática, lo cual me ha permitido trabajar con una variedad de proyectos y tecnologías.
 
-        function insertVariable(variable) {
-            const textarea = document.getElementById('carta_texto');
-            const startPos = textarea.selectionStart;
-            const endPos = textarea.selectionEnd;
-            const textBefore = textarea.value.substring(0, startPos);
-            const textAfter = textarea.value.substring(endPos, textarea.value.length);
+Lo que me destaca es mi creatividad y capacidad para generar ideas innovadoras para mis proyectos web. Esta creatividad se combina con mi enfoque perseverante, lo que me ha llevado a trabajar con diferentes máquinas, mejorando su funcionamiento y eficiencia. Esta versatilidad y capacidad para adaptarme a diversos desafíos tecnológicos es algo que valoro en mi trabajo diario.
 
-            let variableText = '';
-            if (variable === 'posicion') {
-                variableText = document.getElementById('posicion').value;
-            } else if (variable === 'empresa') {
-                variableText = document.getElementById('empresa').value;
-            }
+Además de mi experiencia técnica, he tenido la oportunidad de trabajar en el campo agrícola junto a mi padre, lo que me ha enseñado la importancia del trabajo duro, la puntualidad y la fiabilidad en cualquier tarea que emprendo.
+Quisiera destacar que estoy registrado y he completado un curso de comercio, logística y almacén, lo cual puede resultar en una bonificación de hasta 5.000€ para la empresa al contratarme.
 
-            textarea.value = textBefore + variableText + textAfter;
+Estoy muy emocionado por la oportunidad de unirme a su equipo, aportar mis habilidades y conocimientos, y seguir creciendo profesionalmente en un entorno que valore la innovación y la excelencia tecnológica. Estoy disponible para una entrevista en cualquier momento que les resulte conveniente y espero tener la oportunidad de discutir cómo mis habilidades pueden contribuir al éxito de su empresa.
 
-            // Colocar el cursor después del texto insertado
-            textarea.setSelectionRange(startPos + variableText.length, startPos + variableText.length);
+Muchas gracias por considerar mi solicitud. Quedo a su disposición para proporcionar cualquier información adicional que puedan necesitar.
 
-            // Actualizar el contenido del textarea y guardarlo en localStorage
-            localStorage.setItem('cartaTexto', textarea.value);
-            textarea.focus();
-        }
+Atentamente, ${nombre}.`;
+
+        const blob = new Blob([textoSinEtiquetas], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+}
+
 
     </script>
 </body>
